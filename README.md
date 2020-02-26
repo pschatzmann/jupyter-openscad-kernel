@@ -7,11 +7,11 @@ Any regular text in a cell is added to the SCAD code buffer. This allows you to 
 ## Preconditions
 - Python and Jupyter or Jupyterlab should be installed (e.g. with the help of pip or conada) 
 
-- Please make sure that openscad is installed on your system (e.g. with apt install openscad) and that it can be called on the command line:
+- Please make sure that openscad is installed on your system (e.g. with apt install openscad) and that it can be called on the command line. Verify this by calling:
 ```
 openscad -v
 ```
-diplays the version. E.g. 2019.12.20
+This diplays the version. E.g. 2019.12.20
 
 ## Installation
 
