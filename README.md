@@ -37,3 +37,7 @@ or
 ```
 jupyter workspace
 ```
+
+## Further Information
+- A quick [Demo Workbook](https://gist.github.com/pschatzmann/d3d043161f255be90f22dc4d19969f09)
+
