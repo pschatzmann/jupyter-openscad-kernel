@@ -16,7 +16,7 @@ This diplays the version. E.g. 2019.12.20
 ## Installation
 
 ```
-git clone https://github.com/pschatzmann/IOpenSCAD.git
+git clone https://github.com/pschatzmann/openscad-kernel.git
 cd IOpenSCAD
 jupyter kernelspec install --user iopenscad
 ```
