@@ -198,19 +198,19 @@ class MimeConverter:
 ##
 class Statement:
 
-    def __init__(self, statmentType, sourceCode):
-        self.statementType = statmentType
+    def __init__(self, statementTypePar, sourceCode):
+        self.statementType = statementTypePar
         self.sourceCode = "".join(sourceCode)
         self.name = "-"
-        if statmentType == "=" :
+        if statementTypePar == "=" :
             self.name = self.sourceCode.split("=")[0].strip()
-        elif statmentType == "include":
+        elif statementTypePar == "include":
             self.name = self.extract(sourceCode,"<",">")
-        elif statmentType == "use":
+        elif statementTypePar == "use":
             self.name = self.extract(sourceCode,"<",">")
-        elif statmentType == "module":
+        elif statementTypePar == "module":
             self.name = self.extract(sourceCode,"module","(")
-        elif statmentType == "function":
+        elif statementTypePar == "function":
             self.name = self.extract(sourceCode,"function","(")
             
     ## Logic to find the name with the help of a start and end tag
@@ -294,7 +294,7 @@ class Parser:
                 statement = Statement("whitespace",words[0:end])
                 self.insertStatement(statement)
             elif "/*" == "".join(words[0:3]):
-                end = self.findEnd2Char(words,"*/", 3)
+                end = self.findEndString(words,"*/", 3)
                 statement = Statement("comment", words[0:end])
                 self.insertStatement(statement)
             elif "%include" == "".join(words[0:2]):
@@ -363,6 +363,7 @@ class Parser:
         code = self.getSourceCode().strip()
         self.converter.saveAs(self.scadCommand, code, fileName)
 
+    # for a start tag we try to find the matching end tag: e.g for { }
     def findEnd2(self, words, start, end):
         index = 0
         wordPos = 0
@@ -380,6 +381,7 @@ class Parser:
             wordPos +=1
         return wordPos
     
+    # find specified end charactror
     def findEnd1(self, words, end):
         wordPos = 0
         while wordPos<len(words):
@@ -390,7 +392,8 @@ class Parser:
             
         return len(words)
 
-    def findEnd2Char(self, words, end, num):
+    # find the indicated end string by looking at the next num entries 
+    def findEndString(self, words, end, num):
         wordPos = 0
         while wordPos<len(words):
             word = "".join(words[wordPos:wordPos+num])
@@ -400,6 +403,7 @@ class Parser:
         return len(words)
 
 
+    # find the next white space 
     def findEndWhiteSpace(self, words):
         wordPos = 0
         word = words[wordPos]
