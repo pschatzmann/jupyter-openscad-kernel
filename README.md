@@ -45,9 +45,8 @@ or
 jupyter workspace
 ```
 ## Versions
-1.0     Initial Version
-1.0.1   Additional syntax checking
-        Publish to pypi
+- 1.0     Initial Version
+- 1.0.1   Additional syntax checking; Publish to pypi
 =======
 
 ## Further Information
