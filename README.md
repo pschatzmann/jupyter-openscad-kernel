@@ -36,13 +36,6 @@ jupyter labextension install jupyterlab-openscad-syntax-highlighting
 
 
 Now you can launch your kernel my calling
-=======
-
-```
-jupyter labextension install jupyterlab-viewer-3d
-```
-
-Now you can launch your kernel my calling
 
 ```
 jupyter lab
