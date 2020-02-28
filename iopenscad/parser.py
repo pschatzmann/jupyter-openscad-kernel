@@ -284,6 +284,7 @@ class Parser:
         self.isError = False
    
     def parse(self, scad):
+        self.displayRendered = False
         self.clearMessages()
         self.tempStatement = Statement("-",[])
         words = re.split('(\W)', scad)
@@ -515,11 +516,11 @@ class Parser:
     def processDefault(self, words):
         if words[0:1]=="%":
             end = self.findEnd1(words,os.linesep)
-            self.addMessages("Unsopported Command: "+"".join(words[0:end]))  
+            self.addMessages("Unsupported Command: "+"".join(words[0:end]))  
         else:
             end = self.findEnd1(words,";")
             newStatementWords = words[0:end]
-            cmd = "".join(newStatementWords).strip() 
+            cmd = "".join(newStatementWords)
             if (not cmd or cmd.endswith(";")):
                 statementType = "-"
                 if "function" in newStatementWords: 
