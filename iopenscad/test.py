@@ -5,6 +5,7 @@
 import unittest
 import os
 from iopenscad.parser import Parser
+from iopenscad.kernel import IOpenSCAD
 
 class MyTest(unittest.TestCase):
     def strip(self, txt):
@@ -67,9 +68,9 @@ class MyTest(unittest.TestCase):
         self.assertEqual(self.strip(parser.getSourceCode()), "box([1,1,1]);")
 
     def testDisplayCode(self):
-        cmd = os.linesep+"%displayCode "+os.linesep+"box([1,1,1]); "+os.linesep
-        parser = Parser()
-        parser.parse(cmd)
+        kernel = IOpenSCAD()
+        cmd = "cube([20,30,50]);"+os.linesep+"%displayCode "+os.linesep
+        kernel.do_execute(cmd,False)
 
     def testSourceCode(self):
         cmd = os.linesep+" box([1,1,1]); "+os.linesep

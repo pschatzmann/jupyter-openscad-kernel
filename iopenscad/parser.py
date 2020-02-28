@@ -239,6 +239,7 @@ class Parser:
         self.converter = MimeConverter()
         self.scadCommand = ""
         self.isError = False
+        self.displayRendered = False
 
 
     def getStatements(self):
@@ -318,11 +319,13 @@ class Parser:
                 tmp = "".join(words[2:end])
                 self.addMessages( self.getScadCommand()+tmp)
             elif "%display" == "".join(words[0:2]):
+                self.displayRendered = True
                 end = self.findEnd1(words,os.linesep)
                 self.tempStatement = Statement(None,words[2:end])
             elif "%saveAs" == "".join(words[0:2]):
                 end = self.processSaveAs(words)
             elif "%%display" == "".join(words[0:4]):
+                self.displayRendered = True
                 end = len(words)
                 self.tempStatement = Statement(None,words[4:end])
             elif "%mime" == "".join(words[0:2]):

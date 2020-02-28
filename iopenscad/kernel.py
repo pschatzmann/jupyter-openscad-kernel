@@ -44,9 +44,8 @@ class IOpenSCAD(Kernel):
         self.parser.parse(code)
         
         if not silent:
-            # We send the standard output to the
-            # client.
-            if "%display" in code:
+            # We send the standard output to the client.
+            if self.parser.displayRendered:
                 self.displayMessages(self.parser)
                 self.parser.clearMessages()
                 resultFile = self.parser.renderMime()

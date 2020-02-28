@@ -10,5 +10,8 @@ WORKDIR /opt
 RUN git clone https://github.com/pschatzmann/openscad-kernel
 WORKDIR /opt/openscad-kernel
 RUN jupyter kernelspec install iopenscad
-RUN jupyter labextension install jupyterlab-openscad-syntax-highlighting jupyterlab-viewer-3d
+RUN curl -sL https://deb.nodesource.com/setup_10.x | bash -
+RUN apt update && apt install -y nodejs 
+RUN jupyter labextension install jupyterlab-openscad-syntax-highlighting
+#RUN jupyter labextension install jupyterlab-viewer-3d
 CMD jupyter lab --allow-root --ip=0.0.0.0 --port=8888 --no-browser 
