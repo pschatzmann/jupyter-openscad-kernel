@@ -17,7 +17,7 @@ diplays the version. E.g. 2019.12.20
 pip install openscad-kernel
 ```
 ## Installation from source
-=======
+
 - Please make sure that openscad is installed on your system (e.g. with apt install openscad) and that it can be called on the command line. Verify this by calling:
 ```
 openscad -v
