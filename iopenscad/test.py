@@ -138,6 +138,14 @@ class MyTest(unittest.TestCase):
         result = parser.renderMime()
         self.assertNotEqual(result, None)
 
+    def testComment(self):
+        cmd = "box([1,1,1]);"+os.linesep+" /* comment */ box([1,1,1]); "+os.linesep
+        parser = Parser()
+        parser.setup()
+        parser.parse(cmd)
+        result = parser.getStatementsOfType("comment")
+        self.assertEqual(len(result), 1)
+
 
 
 

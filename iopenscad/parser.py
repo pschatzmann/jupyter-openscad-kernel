@@ -293,6 +293,10 @@ class Parser:
                 end = self.findEndWhiteSpace(words)
                 statement = Statement("whitespace",words[0:end])
                 self.insertStatement(statement)
+            elif "/*" == "".join(words[0:3]):
+                end = self.findEnd2Char(words,"*/", 3)
+                statement = Statement("comment", words[0:end])
+                self.insertStatement(statement)
             elif "%include" == "".join(words[0:2]):
                 end = self.processInclude(words)
             elif "%use" == "".join(words[0:2]):
@@ -370,13 +374,10 @@ class Parser:
                 started = True
                            
             if word == end:
-                index -=1
-                
+                index -=1                
             if started and index==0:
-                return wordPos+1
-            
+                return wordPos+1            
             wordPos +=1
-            
         return wordPos
     
     def findEnd1(self, words, end):
@@ -388,7 +389,17 @@ class Parser:
             wordPos+=1
             
         return len(words)
-    
+
+    def findEnd2Char(self, words, end, num):
+        wordPos = 0
+        while wordPos<len(words):
+            word = "".join(words[wordPos:wordPos+num])
+            if word==end:
+                return wordPos+num
+            wordPos+=1
+        return len(words)
+
+
     def findEndWhiteSpace(self, words):
         wordPos = 0
         word = words[wordPos]
@@ -475,7 +486,7 @@ class Parser:
             useParser.parse(scadCode)
             count = 0
             for statement in useParser.statements:
-                if (statement.statementType in ["include","use","module","function","=","whitespace"]):
+                if (statement.statementType in ["include","use","module","function","=","whitespace","comment"]):
                     self.statements.append(statement)
                     count += 1
             self.addMessages("Included number of statements: "+str(count)) 
