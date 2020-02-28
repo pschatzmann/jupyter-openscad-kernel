@@ -317,7 +317,7 @@ class Parser:
             elif "%displayCode" == "".join(words[0:2]):
                 end = self.findEnd1(words,os.linesep)
                 tmp = "".join(words[2:end])
-                self.addMessages( self.getScadCommand()+tmp)
+                self.addMessages( self.getSourceCode()+tmp)
             elif "%display" == "".join(words[0:2]):
                 self.displayRendered = True
                 end = self.findEnd1(words,os.linesep)
