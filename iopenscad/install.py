@@ -66,4 +66,4 @@ def main(argv=None):
     install_my_kernel_spec(user=user, prefix=prefix)
 
 if __name__ == '__main__':
-    main()
+    main(argv=sys.argv)

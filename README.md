@@ -14,7 +14,11 @@ openscad -v
 diplays the version. E.g. 2019.12.20
 
 ## Installation
+
+
 ```
+pip install git+https://github.com/pschatzmann/openscad-kernel.git
+
 pip install openscad-kernel
 python -m iopenscad.install
 
