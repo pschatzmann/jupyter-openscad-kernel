@@ -4,12 +4,13 @@
         "-s",
         "./iopenscad",
         "-p",
-        "*test*.py"
+        "test*.py"
     ],
     "python.testing.pytestEnabled": false,
     "python.testing.nosetestsEnabled": false,
     "python.testing.unittestEnabled": true,
     "python.testing.pytestArgs": [
         "."
-    ]
+    ],
+    "python.pythonPath": "/usr/local/bin/python"
 }

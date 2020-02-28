@@ -32,7 +32,7 @@ class MyTest(unittest.TestCase):
         parser1 = Parser()
         parser1.parse(cmd)
         self.assertEqual(parser1.getSourceCode().strip(), "")
-        self.assertEqual(self.strip(parser1.getMessages()), "Available Commands: %clear %display %displayCode %%display %mime %command %lsmagic %include %saveAs")
+        self.assertTrue(self.strip(parser1.getMessages().startswith("Available Commands: ")))
 
     def testCommand(self):
         cmd = os.linesep+" %command testCommand "+os.linesep
@@ -120,6 +120,11 @@ class MyTest(unittest.TestCase):
         self.assertEqual(len(self.strip(parser9.getSourceCode())), 2192)
         self.assertTrue("Included" in parser9.getMessages().strip())
 
+    def testUse(self):
+        cmd = "%use https://raw.githubusercontent.com/pschatzmann/openscad-models/master/Pig.scad" 
+        parser9 = Parser()
+        parser9.parse(cmd)
+        self.assertTrue("Included" in parser9.getMessages().strip())
 
     def testDisplayText(self):
         cmd = "%mime text/plain"+os.linesep+" %display box([1,1,1]); "+os.linesep

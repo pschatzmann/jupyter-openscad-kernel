@@ -229,7 +229,7 @@ class Statement:
 ##
 
 class Parser:
-    lsCommands = ["%clear", "%display", "%displayCode","%%display", "%mime","%command", "%lsmagic","%include", "%saveAs"]
+    lsCommands = ["%clear", "%display", "%displayCode","%%display", "%mime","%command", "%lsmagic","%include", "%use" "%saveAs"]
         
     def __init__(self):
         self.statements = []
@@ -309,13 +309,13 @@ class Parser:
                 end = 2                
                 self.close()
                 self.addMessages( "SCAD code buffer has been cleared")
+            elif "%displayCode" == "".join(words[0:2]):
+                end = self.findEnd1(words,os.linesep)
+                tmp = "".join(words[2:end])
+                self.addMessages( self.getScadCommand()+tmp)
             elif "%display" == "".join(words[0:2]):
                 end = self.findEnd1(words,os.linesep)
                 self.tempStatement = Statement(None,words[2:end])
-            elif "%displayCode" == "".join(words[0:2]):
-                end = self.findEnd1(words,os.linesep)
-                self.tempStatement = Statement(None,words[2:end])
-                self.addMessages( self.getScadCommand())
             elif "%saveAs" == "".join(words[0:2]):
                 end = self.processSaveAs(words)
             elif "%%display" == "".join(words[0:4]):
@@ -475,7 +475,7 @@ class Parser:
             useParser.parse(scadCode)
             count = 0
             for statement in useParser.statements:
-                if (statement.statmentType in ["include","use","module","function","="]):
+                if (statement.statementType in ["include","use","module","function","=","whitespace"]):
                     self.statements.append(statement)
                     count += 1
             self.addMessages("Included number of statements: "+str(count)) 
@@ -507,7 +507,9 @@ class Parser:
                 if "function" in newStatementWords: 
                     statementType = "function"
                 elif "=" in newStatementWords: 
-                    statementType = "="                                                      
+                    statementType = "="     
+                elif not cmd and os.linesep in  newStatementWords :
+                    statementType = "whitespace"     
                 statement = Statement(statementType, newStatementWords)
                 self.insertStatement(statement)
             else:
