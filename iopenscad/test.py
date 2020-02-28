@@ -4,19 +4,19 @@
 
 import unittest
 import os
-from parser import Parser
+from iopenscad.parser import Parser
 
 class MyTest(unittest.TestCase):
     def strip(self, txt):
         return txt.replace(os.linesep,"").strip()
 
     def testConvert(self):
-        cmd = os.linesep+" box([1,1,1]) "+os.linesep
+        cmd = os.linesep+" box([1,1,1]); "+os.linesep
         parser = Parser()
         parser.setup()
         parser.parse(cmd)
         mime = parser.renderMime()
-        f = open(mime, "r")
+        f = open(mime, "rb")
         content = f.read()
         print(content)
         f.close()
@@ -32,7 +32,7 @@ class MyTest(unittest.TestCase):
         parser1 = Parser()
         parser1.parse(cmd)
         self.assertEqual(parser1.getSourceCode().strip(), "")
-        self.assertEqual(self.strip(parser1.getMessages()), "%clear %display %%display %mime %command %lsmagic %include")
+        self.assertEqual(self.strip(parser1.getMessages()), "Available Commands: %clear %display %displayCode %%display %mime %command %lsmagic %include %saveAs")
 
     def testCommand(self):
         cmd = os.linesep+" %command testCommand "+os.linesep
@@ -118,7 +118,7 @@ class MyTest(unittest.TestCase):
         parser9 = Parser()
         parser9.parse(cmd)
         self.assertEqual(len(self.strip(parser9.getSourceCode())), 2192)
-        self.assertTrue("included" in parser9.getMessages().strip())
+        self.assertTrue("Included" in parser9.getMessages().strip())
 
 
     def testDisplayText(self):

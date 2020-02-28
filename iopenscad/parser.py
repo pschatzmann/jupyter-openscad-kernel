@@ -9,6 +9,7 @@ import tempfile
 import os
 import re
 import logging
+import urllib
 import urllib.request
 
 ##
@@ -119,9 +120,11 @@ class MimeConverter:
         self.messages = ""
         self.tmpFiles = []
         self.resultFile = None
+        self.isError = False
 
     def clear(self):
         self.messages = ""
+        self.isError = False
 
     def convert(self, scadCommand, scadCode, mime):
         self.clear()
@@ -161,6 +164,7 @@ class MimeConverter:
             self.messages+=line.decode("utf-8") 
 
         retval = p.wait()
+        self.isError = retval != 0
         os.remove(inPath)
         return retval
     
@@ -219,13 +223,14 @@ class Statement:
         return self.sourceCode
 
     
-
 ## 
 # The kernal can submit the same code multiple times. The major goal of this parser 
 # is to prevent duplicate definitions (mainly of modules or functions)
 ##
 
 class Parser:
+    lsCommands = ["%clear", "%display", "%displayCode","%%display", "%mime","%command", "%lsmagic","%include", "%saveAs"]
+        
     def __init__(self):
         self.statements = []
         self.tempStatement = Statement("-",[])
@@ -233,6 +238,7 @@ class Parser:
         self.mime = "image/png"
         self.converter = MimeConverter()
         self.scadCommand = ""
+        self.isError = False
 
 
     def getStatements(self):
@@ -256,14 +262,14 @@ class Parser:
     def lineCount(self):
         return self.getSourceCode().count('\n') 
 
-    def getMessages(self):
-        return self.messages
-
     def addMessages(self, newMessage):
         if self.messages.strip():
             self.messages = self.messages + os.linesep + newMessage
         else:
             self.messages = newMessage
+
+    def getMessages(self):
+        return self.messages
 
     def getMessagesExt(self):
         result = self.messages
@@ -274,6 +280,7 @@ class Parser:
 
     def clearMessages(self):
         self.messages = ""
+        self.isError = False
    
     def parse(self, scad):
         self.clearMessages()
@@ -287,19 +294,9 @@ class Parser:
                 statement = Statement("-",words[0:end])
                 self.insertStatement(statement)
             elif "%include" == "".join(words[0:2]):
-                try:
-                    end = self.findEnd1(words,os.linesep)
-                    url = "".join(words[2:end]).strip()
-                    lib = IncludeLibrary.get(url)
-                    if not lib:
-                        lib = IncludeLibrary.addRef(url,url)
-                    includeString = lib.getContent().strip()
-                    includeStringLineCount = includeString.count('\n') 
-                    statement = Statement("-",[includeString])
-                    self.insertStatement(statement)
-                    self.addMessages("Included number of lines: "+str(includeStringLineCount)) 
-                except Exception as err:
-                     self.addMessages("Could not include file: "+str(err))  
+                end = self.processInclude(words)
+            elif "%use" == "".join(words[0:2]):
+                end = self.processUse(words)
             elif words[0] in ["include", "use"]:
                 end = self.statements.index(";")
                 statement = Statement(words[0], words[0:end])
@@ -315,14 +312,12 @@ class Parser:
             elif "%display" == "".join(words[0:2]):
                 end = self.findEnd1(words,os.linesep)
                 self.tempStatement = Statement(None,words[2:end])
+            elif "%displayCode" == "".join(words[0:2]):
+                end = self.findEnd1(words,os.linesep)
+                self.tempStatement = Statement(None,words[2:end])
+                self.addMessages( self.getScadCommand())
             elif "%saveAs" == "".join(words[0:2]):
-                try:
-                    end = self.findEnd1(words,os.linesep)
-                    fileName = "".join(words[2:end]).strip()
-                    self.saveAs(fileName)
-                    self.addMessages("File '" +fileName+ "' created")
-                except Exception as err:
-                     self.addMessages("Could not save file: "+str(err))  
+                end = self.processSaveAs(words)
             elif "%%display" == "".join(words[0:4]):
                 end = len(words)
                 self.tempStatement = Statement(None,words[4:end])
@@ -340,17 +335,10 @@ class Parser:
                 self.addMessages("The display command is '"+self.getScadCommand()+"'")
             elif "%lsmagic" == "".join(words[0:2]):
                 end = 2
-                self.addMessages("Available Commands: %clear %display %%display %mime %command %lsmagic %include %saveAs" )
+                commandsTxt = " ".join(self.lsCommands)
+                self.addMessages("Available Commands: "+ commandsTxt )
             else: 
-                end = self.findEnd1(words,";")
-                newStatementWords = words[0:end]
-                statementType = "-"
-                if "function" in newStatementWords: 
-                    statementType = "function"
-                elif "=" in newStatementWords: 
-                    statementType = "="                                                      
-                statement = Statement(statementType, newStatementWords)
-                self.insertStatement(statement)
+                end = self.processDefault(words)
 
             ## use unprocessed tail for next iteration    
             words = words[end:]
@@ -364,6 +352,7 @@ class Parser:
             if (self.messages):
                 self.messages += os.linesep
             self.messages += self.converter.getMessages()
+            self.isError = self.converter.isError
         return result
 
     def saveAs(self, fileName):
@@ -431,25 +420,100 @@ class Parser:
         if self.scadCommand:
             return self.scadCommand
         
-        test = "cube([1,1,1]);"
         mc = MimeConverter()
+        testSCAD = "cube([1,1,1]);"
+
         # check for openscad
         self.scadCommand = "openscad"
-        if mc.convert(self.scadCommand,test,"image/png")==0:
+        if mc.convert(self.scadCommand,testSCAD,"image/png")==0:
             return self.scadCommand
         
         # check for openjscad
         self.scadCommand = "openjscad"
-        if mc.convert(self.scadCommand, test,"image/png")==0:
+        if mc.convert(self.scadCommand, testSCAD,"image/png")==0:
             return self.scadCommand
 
-        return ""
+        # Default command if nothing is supported
+        self.scadCommand = "openscad"
+        return self.scadCommand
     
     def setScadCommand(self, cmd):
         self.scadCommand = cmd
         
     def getScadCommand(self):
         return self.scadCommand
+
+    def getIncludeString(self, words, end):
+        url = "".join(words[2:end]).strip()
+        lib = IncludeLibrary.get(url)
+        if not lib:
+            lib = IncludeLibrary.addRef(url,url)
+        includeString = lib.getContent().strip()
+        return includeString
+
+    def processInclude(self, words):
+        end = self.findEnd1(words,os.linesep)
+        try:
+            scadCode = self.getIncludeString(words, end)
+            useParser = Parser()
+            useParser.parse(scadCode)
+            count = 0
+            for statement in useParser.statements:
+                self.statements.append(statement)
+                count += 1
+            self.addMessages("Included number of statements: "+str(count)) 
+        except Exception as err:
+            self.isError = True
+            self.addMessages("Could not include file: "+str(err))  
+        return end
+
+    def processUse(self, words):
+        end = self.findEnd1(words,os.linesep)
+        try:
+            scadCode = self.getIncludeString(words, end)
+            useParser = Parser()
+            useParser.parse(scadCode)
+            count = 0
+            for statement in useParser.statements:
+                if (statement.statmentType in ["include","use","module","function","="]):
+                    self.statements.append(statement)
+                    count += 1
+            self.addMessages("Included number of statements: "+str(count)) 
+        except Exception as err:
+            self.isError = True
+            self.addMessages("Could not include file: "+str(err))  
+        return end
+
+    def processSaveAs(self, words):
+        end = self.findEnd1(words,os.linesep)
+        try:
+            fileName = "".join(words[2:end]).strip()
+            self.saveAs(fileName)
+            self.addMessages("File '" +fileName+ "' created")
+        except Exception as err:
+            self.addMessages("Could not save file: "+str(err))  
+        return end
+
+    def processDefault(self, words):
+        if words[0:1]=="%":
+            end = self.findEnd1(words,os.linesep)
+            self.addMessages("Unsopported Command: "+"".join(words[0:end]))  
+        else:
+            end = self.findEnd1(words,";")
+            newStatementWords = words[0:end]
+            cmd = "".join(newStatementWords).strip() 
+            if (not cmd or cmd.endswith(";")):
+                statementType = "-"
+                if "function" in newStatementWords: 
+                    statementType = "function"
+                elif "=" in newStatementWords: 
+                    statementType = "="                                                      
+                statement = Statement(statementType, newStatementWords)
+                self.insertStatement(statement)
+            else:
+                self.addMessages("Syntax error: this cell does not contain valid OpenSCAD code" )
+                self.isError = True
+        return end
 
     def close(self):
         self.clearMessages()

@@ -1,9 +1,0 @@
-{
-    "argv": ["python", "-m",
-             "iopenscad", "-f",
-             "{connection_file}"],
-    "display_name": "OpenSCAD",
-    "name": "OpenSCAD",
-    "language": "python"
-   }
-   

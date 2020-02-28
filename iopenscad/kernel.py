@@ -3,8 +3,8 @@
 ##
 import os
 import base64
-from ipykernel.kernelbase import Kernel
 from iopenscad.parser import Parser
+from ipykernel.kernelbase import Kernel
 
 class IOpenSCAD(Kernel):
     banner = "OpenSCAD"
@@ -47,7 +47,7 @@ class IOpenSCAD(Kernel):
             # We send the standard output to the
             # client.
             if "%display" in code:
-                self.displayInfo(self.parser.getMessages())
+                self.displayMessages(self.parser)
                 self.parser.clearMessages()
                 resultFile = self.parser.renderMime()
                 if resultFile:
@@ -58,14 +58,14 @@ class IOpenSCAD(Kernel):
                         resultObj = base64.standard_b64encode(resultObj).decode('utf-8')
 
                 if self.parser.getMessages().strip():
-                    self.displayError(self.parser.getMessages())
+                    self.displayMessages(self.parser)
                 if resultObj:
                     self.displayImage(resultObj, self.parser.mime)
                 else:
                     if self.parser.getSourceCode().strip():
                         self.displayError(os.linesep+self.parser.getSourceCode())
             else:
-                self.displayInfo(self.parser.getMessagesExt())
+                self.displayMessages(self.parser)
 
         # We return the exection results.
         return {'status': 'ok',
@@ -78,8 +78,18 @@ class IOpenSCAD(Kernel):
     # Determine completion result
     ##
     def do_complete(self, code, cursor_pos):
-        result = self.complete + self.parser.getModuleNames()
+        char = code[cursor_pos]
+        result = self.complete + self.parser.getModuleNames() + self.parser.lsCommands
         result.sort()
+
+        # filter the result if necessary
+        if char.strip():
+            subset = []
+            for cmd in result:
+                if cmd.startswith(char):
+                    subset.append(cmd)
+            result = subset
+
         content = {
             # The list of all matches to the completion request, such as
             # ['a.isalnum', 'a.isalpha'] for the above example.
@@ -110,6 +120,13 @@ class IOpenSCAD(Kernel):
     def displayError(self, error):
         stream_content = {'name': 'stderr', 'text': error}
         self.send_response(self.iopub_socket, 'stream', stream_content)
+
+    def displayMessages(self, parser):
+        if self.parser.isError:
+            self.displayError(parser.getMessages())
+        else:
+            self.displayInfo(parser.getMessages())
+
     
     def displayImage(self, resultObj, mime):
         if resultObj:
