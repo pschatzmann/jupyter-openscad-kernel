@@ -18,14 +18,6 @@ pip install openscad-kernel
 ```
 ## Installation from source
 
-- Please make sure that openscad is installed on your system (e.g. with apt install openscad) and that it can be called on the command line. Verify this by calling:
-```
-openscad -v
-```
-This diplays the version. E.g. 2019.12.20
-
-## Installation
-
 ```
 git clone https://github.com/pschatzmann/openscad-kernel.git
 cd openscad-kernel
