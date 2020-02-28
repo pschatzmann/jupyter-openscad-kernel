@@ -9,6 +9,6 @@ RUN pip3 install jupyterlab
 WORKDIR /opt
 RUN git clone https://github.com/pschatzmann/openscad-kernel
 WORKDIR /opt/openscad-kernel
-RUN jupyter kernelspec install --user iopenscad
+RUN jupyter kernelspec install iopenscad
 RUN jupyter labextension install jupyterlab-openscad-syntax-highlighting jupyterlab-viewer-3d
 CMD jupyter lab --allow-root --ip=0.0.0.0 --port=8888 --no-browser 
