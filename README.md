@@ -47,7 +47,6 @@ jupyter workspace
 ## Versions
 - 1.0     Initial Version
 - 1.0.1   Additional syntax checking; Publish to pypi
-=======
 
 ## Further Information
 - A quick [Demo Workbook](https://gist.github.com/pschatzmann/d3d043161f255be90f22dc4d19969f09)
