@@ -11,6 +11,5 @@
     "python.testing.unittestEnabled": true,
     "python.testing.pytestArgs": [
         "."
-    ],
-    "python.pythonPath": "/usr/local/bin/python"
+    ]
 }

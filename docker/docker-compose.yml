@@ -1,0 +1,9 @@
+version: "3.7"
+services:
+    iopenscad:
+      image: pschatzmann/iopenscad:latest
+      container_name: iopenscad
+      ports:
+        - "8880:8888"
+      restart: always
+      build: .

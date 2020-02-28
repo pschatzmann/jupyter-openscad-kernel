@@ -5,6 +5,7 @@ I was missing a Jupyter Kernel for [OpenSCAD](https://www.openscad.org/). So I t
 Any regular text in a cell is added to the SCAD code buffer. This allows you to build up an OpenSCAD model in multiple steps using Jupyter cells and document the design along the way.
 
 ## Preconditions
+- Jupyter or Jupyterlab should have been installed
 - Please make sure that openscad is installed on your system (e.g. with apt install openscad) and that it can be called on the command line:
 
 ```

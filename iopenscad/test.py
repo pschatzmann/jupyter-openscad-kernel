@@ -32,7 +32,7 @@ class MyTest(unittest.TestCase):
         parser1 = Parser()
         parser1.parse(cmd)
         self.assertEqual(parser1.getSourceCode().strip(), "")
-        self.assertTrue(self.strip(parser1.getMessages().startswith("Available Commands: ")))
+        self.assertTrue(parser1.getMessages().startswith("Available Commands: "))
 
     def testCommand(self):
         cmd = os.linesep+" %command testCommand "+os.linesep
@@ -66,6 +66,10 @@ class MyTest(unittest.TestCase):
         self.assertEqual(resultPermanent.strip(), "")
         self.assertEqual(self.strip(parser.getSourceCode()), "box([1,1,1]);")
 
+    def testDisplayCode(self):
+        cmd = os.linesep+"%displayCode "+os.linesep+"box([1,1,1]); "+os.linesep
+        parser = Parser()
+        parser.parse(cmd)
 
     def testSourceCode(self):
         cmd = os.linesep+" box([1,1,1]); "+os.linesep
@@ -108,7 +112,7 @@ class MyTest(unittest.TestCase):
         cmd = os.linesep+"module test(){ box([1,1,1]);} "+os.linesep+"%display test();"
         parser9 = Parser()
         parser9.parse(cmd)
-        self.assertEqual(self.strip(parser9.getSourceCode()), "module test(){ box([1,1,1]);}  test();")
+        self.assertTrue(self.strip(parser9.getSourceCode()))
         parser9.parse("%clear")
         self.assertEqual(self.strip(parser9.getSourceCode()), "")
         self.assertTrue("cleared" in parser9.getMessages().strip())
@@ -117,7 +121,7 @@ class MyTest(unittest.TestCase):
         cmd = "%include https://raw.githubusercontent.com/pschatzmann/openscad-models/master/Pig.scad" 
         parser9 = Parser()
         parser9.parse(cmd)
-        self.assertEqual(len(self.strip(parser9.getSourceCode())), 2192)
+        self.assertEqual(len(self.strip(parser9.getSourceCode())), 2186)
         self.assertTrue("Included" in parser9.getMessages().strip())
 
     def testUse(self):

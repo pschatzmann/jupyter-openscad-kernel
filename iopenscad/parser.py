@@ -229,7 +229,7 @@ class Statement:
 ##
 
 class Parser:
-    lsCommands = ["%clear", "%display", "%displayCode","%%display", "%mime","%command", "%lsmagic","%include", "%use" "%saveAs"]
+    lsCommands = ["%clear", "%display", "%displayCode","%%display", "%mime", "%command", "%lsmagic", "%include", "%use", "%saveAs"]
         
     def __init__(self):
         self.statements = []
@@ -291,7 +291,7 @@ class Parser:
             if not words[0].strip():
                 ## collect white space
                 end = self.findEndWhiteSpace(words)
-                statement = Statement("-",words[0:end])
+                statement = Statement("whitespace",words[0:end])
                 self.insertStatement(statement)
             elif "%include" == "".join(words[0:2]):
                 end = self.processInclude(words)
