@@ -275,7 +275,7 @@ class Parser:
     def getMessagesExt(self):
         result = self.messages
         # if there is nothing to display we give at least some info
-        if not result:
+        if not result.strip():
             result = "Number of lines of OpenSCAD code: "+str(self.lineCount())
         return result
 
@@ -354,11 +354,12 @@ class Parser:
             ## use unprocessed tail for next iteration    
             words = words[end:]
 
-
     def renderMime(self):
         result = None
         try:
             code = self.getSourceCode().strip()
+            code = code.replace(u'\xa0', u' ')
+
             if code:
                 result = self.converter.convert(self.scadCommand, code, self.mime)
                 if (self.messages):
@@ -428,12 +429,19 @@ class Parser:
     # if the statement ends with a new line we add it to the statement
     def findEndWithNewLine(self, words, end):
         wordPos = end
+        hasLF = False
         while wordPos<len(words):
             word = words[wordPos]
             if word==os.linesep:
-                return wordPos+1
-            elif words[wordPos].strip():
-                return end
+                hasLF = True
+                wordPos+=1              
+            elif word=="":
+                wordPos+=1              
+            elif words[wordPos]:
+                if hasLF: 
+                    return wordPos-1 
+                else: 
+                    return end
             else:
                 wordPos+=1              
         return len(words)

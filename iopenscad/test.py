@@ -3,7 +3,7 @@
 #
 
 import unittest
-import os
+import os, re
 from iopenscad.parser import Parser
 from iopenscad.kernel import IOpenSCAD
 
@@ -30,24 +30,24 @@ class MyTest(unittest.TestCase):
 
     def testLsMagic(self):
         cmd = os.linesep+" %lsmagic "+os.linesep
-        parser1 = Parser()
-        parser1.parse(cmd)
-        self.assertEqual(parser1.getSourceCode().strip(), "")
-        self.assertTrue(parser1.getMessages().startswith("Available Commands: "))
+        parser = Parser()
+        parser.parse(cmd)
+        self.assertEqual(parser.getSourceCode().strip(), "")
+        self.assertTrue(parser.getMessages().startswith("Available Commands: "))
 
     def testCommand(self):
         cmd = os.linesep+" %command testCommand "+os.linesep
-        parser2 = Parser()
-        parser2.parse(cmd)
-        self.assertEqual(parser2.getSourceCode().strip(), "")
-        self.assertEqual(parser2.scadCommand, "testCommand")
+        parser = Parser()
+        parser.parse(cmd)
+        self.assertEqual(parser.getSourceCode().strip(), "")
+        self.assertEqual(parser.scadCommand, "testCommand")
 
     def testMime(self):
         cmd = os.linesep+" %mime application/openscad "+os.linesep
-        parser3 = Parser()
-        parser3.parse(cmd)
-        self.assertEqual(parser3.getSourceCode().strip(), "")
-        self.assertEqual(parser3.mime, "application/openscad")
+        parser = Parser()
+        parser.parse(cmd)
+        self.assertEqual(parser.getSourceCode().strip(), "")
+        self.assertEqual(parser.mime, "application/openscad")
 
 
     def testDisplay(self):
@@ -75,62 +75,62 @@ class MyTest(unittest.TestCase):
 
     def testSourceCode(self):
         cmd = os.linesep+" box([1,1,1]); "+os.linesep
-        parser5 = Parser()
-        parser5.parse(cmd)
-        resultPermanent = "".join([elem.sourceCode for elem in parser5.getStatements()]) 
+        parser = Parser()
+        parser.parse(cmd)
+        resultPermanent = "".join([elem.sourceCode for elem in parser.getStatements()]) 
         self.assertEqual(self.strip(resultPermanent), "box([1,1,1]);")
-        self.assertEqual(self.strip(parser5.getSourceCode()), "box([1,1,1]);")
+        self.assertEqual(self.strip(parser.getSourceCode()), "box([1,1,1]);")
 
     def testModules(self):
         cmd = os.linesep+"module test(){ box([1,1,1]);} "+os.linesep
-        parser6 = Parser()
-        parser6.parse(cmd)
-        result = parser6.getStatementsOfType("module")
+        parser = Parser()
+        parser.parse(cmd)
+        result = parser.getStatementsOfType("module")
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0].name, "test")
         self.assertEqual(self.strip(result[0].sourceCode), "module test(){ box([1,1,1]);}")
 
     def testModulesUpdate(self):
-        parser7 = Parser()
+        parser = Parser()
         cmd = os.linesep+"module test(){ box([1,1,1]);} "+os.linesep
-        parser7.parse(cmd)
+        parser.parse(cmd)
         cmd = os.linesep+"module test(){ box([2,2,2]);} "+os.linesep
-        parser7.parse(cmd)
-        result = parser7.getStatementsOfType("module")
+        parser.parse(cmd)
+        result = parser.getStatementsOfType("module")
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0].name, "test")
         self.assertEqual(self.strip(result[0].sourceCode), "module test(){ box([2,2,2]);}")
 
     def testClose(self):
         cmd = os.linesep+"module test(){ box([1,1,1]);}"+os.linesep+"%display test();"
-        parser8 = Parser()
-        parser8.parse(cmd)
-        self.assertEqual(self.strip(parser8.getSourceCode()), "module test(){ box([1,1,1]);} test();")
-        parser8.close()
-        self.assertEqual(parser8.getSourceCode().strip(), "")
-        self.assertEqual(parser8.getMessages().strip(), "")
+        parser = Parser()
+        parser.parse(cmd)
+        self.assertEqual(self.strip(parser.getSourceCode()), "module test(){ box([1,1,1]);} test();")
+        parser.close()
+        self.assertEqual(parser.getSourceCode().strip(), "")
+        self.assertEqual(parser.getMessages().strip(), "")
 
     def testClear(self):
         cmd = os.linesep+"module test(){ box([1,1,1]);} "+os.linesep+"%display test();"
-        parser9 = Parser()
-        parser9.parse(cmd)
-        self.assertTrue(self.strip(parser9.getSourceCode()))
-        parser9.parse("%clear")
-        self.assertEqual(self.strip(parser9.getSourceCode()), "")
-        self.assertTrue("cleared" in parser9.getMessages().strip())
+        parser = Parser()
+        parser.parse(cmd)
+        self.assertTrue(self.strip(parser.getSourceCode()))
+        parser.parse("%clear")
+        self.assertEqual(self.strip(parser.getSourceCode()), "")
+        self.assertTrue("cleared" in parser.getMessages().strip())
 
     def testInclude(self):
         cmd = "%include https://raw.githubusercontent.com/pschatzmann/openscad-models/master/Pig.scad" 
-        parser9 = Parser()
-        parser9.parse(cmd)
-        self.assertEqual(len(self.strip(parser9.getSourceCode())), 2185)
-        self.assertTrue("Included" in parser9.getMessages().strip())
+        parser = Parser()
+        parser.parse(cmd)
+        self.assertEqual(len(self.strip(parser.getSourceCode())), 2185)
+        self.assertTrue("Included" in parser.getMessages().strip())
 
     def testUse(self):
         cmd = "%use https://raw.githubusercontent.com/pschatzmann/openscad-models/master/Pig.scad" 
-        parser9 = Parser()
-        parser9.parse(cmd)
-        self.assertTrue("Included" in parser9.getMessages().strip())
+        parser = Parser()
+        parser.parse(cmd)
+        self.assertTrue("Included" in parser.getMessages().strip())
 
     def testDisplayText(self):
         cmd = "%mime text/plain"+os.linesep+" %display box([1,1,1]); "+os.linesep
@@ -148,6 +148,12 @@ class MyTest(unittest.TestCase):
         result = parser.getStatementsOfType("comment")
         self.assertEqual(len(result), 1)
 
+    def testEndChar(self):
+        parser = Parser()
+        parseExpression = '(\W)'
+        self.assertEqual(parser.findEndWithNewLine(re.split(parseExpression,"a"),1), 1)
+        self.assertEqual(parser.findEndWithNewLine(re.split(parseExpression,"a"+os.linesep+"b"),1), 1)
+        self.assertEqual(parser.findEndWithNewLine(re.split(parseExpression,"a"+os.linesep+os.linesep+"b"),1), 3)
 
 
 
