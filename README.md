@@ -2,11 +2,11 @@
 
 I was missing a Jupyter Kernel for [OpenSCAD](https://www.openscad.org/). So I took up the challenge and here is the result.  
 
-Any regular text in a cell is added to the SCAD code buffer. This allows you to build up an OpenSCAD model in multiple steps using Jupyter cells and document the design along the way.
+Any regular text in a cell is added to the overall OpenSCAD code buffer. This allows you to build up an OpenSCAD model in multiple steps using Jupyter cells and document the design along the way.
 
 ## Preconditions
 - Jupyter or Jupyterlab should have been installed
-- Please make sure that openscad is installed on your system (e.g. with apt install openscad) and that it can be called on the command line:
+- Please make sure that OpenSCAD has been installed on your system (e.g. with apt install openscad) and that it can be called on the command line:
 
 ```
 openscad -v
@@ -16,12 +16,12 @@ diplays the version. E.g. 2019.12.20
 ## Installation
 
 ```
-pip install openscad-kernel
+pip install jupyter-openscad-kernel
 ```
 ## Installation from source
 
 ```
-git clone https://github.com/pschatzmann/openscad-kernel.git
+git clone https://github.com/pschatzmann/jupyter-openscad-kernel.git
 cd openscad-kernel
 pip install .
 ```
@@ -51,5 +51,5 @@ jupyter workspace
 - 1.0.1   Additional syntax checking; Publish to pypi
 
 ## Further Information
-- A quick [Demo Workbook](https://gist.github.com/pschatzmann/d3d043161f255be90f22dc4d19969f09)
+- A quick [Overview](https://www.pschatzmann.ch/home/2020/02/26/an-openscad-kernel-in-jupyter/)
 
