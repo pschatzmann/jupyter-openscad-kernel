@@ -100,6 +100,7 @@ class MyTest(unittest.TestCase):
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0].name, "test")
         self.assertEqual(self.strip(result[0].sourceCode), "module test(){ box([2,2,2]);}")
+        self.assertTrue(parser.getMessagesExt().startswith("Number of lines"))
 
     def testClose(self):
         cmd = os.linesep+"module test(){ box([1,1,1]);}"+os.linesep+"%display test();"

@@ -64,7 +64,7 @@ class IOpenSCAD(Kernel):
                     if self.parser.getSourceCode().strip():
                         self.displayError(os.linesep+self.parser.getSourceCode())
             else:
-                self.displayMessages(self.parser)
+                self.displayMessagesEx(self.parser)
 
         # We return the exection results.
         return {'status': 'ok',
