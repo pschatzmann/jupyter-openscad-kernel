@@ -297,6 +297,7 @@ class Parser:
                 self.insertStatement(statement)
             elif "/*" == "".join(words[0:3]):
                 end = self.findEndString(words,"*/", 3)
+                end = self.findEndWithNewLine(words,end)
                 statement = Statement("comment", words[0:end])
                 self.insertStatement(statement)
             elif "%include" == "".join(words[0:2]):
@@ -305,10 +306,12 @@ class Parser:
                 end = self.processUse(words)
             elif words[0] in ["include", "use"]:
                 end = self.statements.index(";")
+                end = self.findEndWithNewLine(words,end)
                 statement = Statement(words[0], words[0:end])
                 self.insertStatement(statement)
             elif words[0] == "module":
                 end = self.findEnd2(words,"{","}")
+                end = self.findEndWithNewLine(words,end)
                 statement = Statement("module",words[0:end])
                 self.insertStatement(statement)
             elif "%clear" == "".join(words[0:2]):
@@ -323,12 +326,12 @@ class Parser:
                 self.displayRendered = True
                 end = self.findEnd1(words,os.linesep)
                 self.tempStatement = Statement(None,words[2:end])
-            elif "%saveAs" == "".join(words[0:2]):
-                end = self.processSaveAs(words)
             elif "%%display" == "".join(words[0:4]):
                 self.displayRendered = True
                 end = len(words)
                 self.tempStatement = Statement(None,words[4:end])
+            elif "%saveAs" == "".join(words[0:2]):
+                end = self.processSaveAs(words)
             elif "%mime" == "".join(words[0:2]):
                 end = self.findEnd1(words,os.linesep)
                 mime = "".join(words[2:end]).strip()
@@ -362,7 +365,8 @@ class Parser:
                     self.messages += os.linesep
                 self.messages += self.converter.getMessages()
                 self.isError = self.converter.isError
-         except Exception as err:
+
+        except Exception as err:
             self.isError = True
             self.addMessages("Could render scad code: "+str(err))  
                
@@ -418,9 +422,21 @@ class Parser:
         word = words[wordPos]
         while not word.strip() and wordPos<len(words)-1:
             wordPos+=1
-            word = words[wordPos]
-            
+            word = words[wordPos]            
         return wordPos
+    
+    # if the statement ends with a new line we add it to the statement
+    def findEndWithNewLine(self, words, end):
+        wordPos = end
+        while wordPos<len(words):
+            word = words[wordPos]
+            if word==os.linesep:
+                return wordPos+1
+            elif words[wordPos].strip():
+                return end
+            else:
+                wordPos+=1              
+        return len(words)
 
     def insertStatement(self, newStatement):
         if not newStatement.statementType in ["-","%","%%"]:
@@ -524,9 +540,11 @@ class Parser:
             self.addMessages("Unsupported Command: "+"".join(words[0:end]))  
         else:
             end = self.findEnd1(words,";")
+            end = self.findEndWithNewLine(words,end)
+
             newStatementWords = words[0:end]
             cmd = "".join(newStatementWords)
-            if (not cmd or cmd.endswith(";")):
+            if (not cmd or cmd.strip().endswith(";")):
                 statementType = "-"
                 if "function" in newStatementWords: 
                     statementType = "function"

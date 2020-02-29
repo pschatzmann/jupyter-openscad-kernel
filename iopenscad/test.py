@@ -68,9 +68,10 @@ class MyTest(unittest.TestCase):
         self.assertEqual(self.strip(parser.getSourceCode()), "box([1,1,1]);")
 
     def testDisplayCode(self):
-        kernel = IOpenSCAD()
         cmd = "cube([20,30,50]);"+os.linesep+"%displayCode "+os.linesep
-        kernel.do_execute(cmd,False)
+        parser = Parser()
+        parser.parse(cmd)
+        self.assertTrue(parser.getMessages().startswith("cube([20,30,50])"))
 
     def testSourceCode(self):
         cmd = os.linesep+" box([1,1,1]); "+os.linesep
@@ -122,7 +123,7 @@ class MyTest(unittest.TestCase):
         cmd = "%include https://raw.githubusercontent.com/pschatzmann/openscad-models/master/Pig.scad" 
         parser9 = Parser()
         parser9.parse(cmd)
-        self.assertEqual(len(self.strip(parser9.getSourceCode())), 2186)
+        self.assertEqual(len(self.strip(parser9.getSourceCode())), 2185)
         self.assertTrue("Included" in parser9.getMessages().strip())
 
     def testUse(self):
