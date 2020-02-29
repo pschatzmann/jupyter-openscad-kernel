@@ -1,4 +1,7 @@
 import re, os
+###
+# Scanner which splits a string into individual tokens (words)
+#
 
 class Scanner:
     def scann(self, scad):

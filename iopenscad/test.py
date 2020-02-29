@@ -152,10 +152,9 @@ class MyTest(unittest.TestCase):
 
     def testEndChar(self):
         s = Scanner()
-        parseExpression = '(\W)'
-        self.assertEqual(s.findEndWithNewLine(re.split(parseExpression,"a"),1), 1)
-        self.assertEqual(s.findEndWithNewLine(re.split(parseExpression,"a"+os.linesep+"b"),1), 1)
-        self.assertEqual(s.findEndWithNewLine(re.split(parseExpression,"a"+os.linesep+os.linesep+"b"),1), 3)
+        self.assertEqual(s.findEndWithNewLine(s.scann("a"),1), 1)
+        self.assertEqual(s.findEndWithNewLine(s.scann("a"+os.linesep+"b"),1), 1)
+        self.assertEqual(s.findEndWithNewLine(s.scann("a"+os.linesep+os.linesep+"b"),1), 3)
 
 
 if __name__ == '__main__': 
