@@ -281,7 +281,7 @@ class Parser:
         result = self.messages
         # if there is nothing to display we give at least some info
         if not result.strip():
-            result = "Number of lines of OpenSCAD code: "+str(self.lineCount())
+            result = "Number of lines of OpenSCAD code: "+str(self.lineCount())+os.linesep
         return result
 
     def clearMessages(self):
@@ -366,14 +366,12 @@ class Parser:
 
             if code:
                 result = self.converter.convert(self.scadCommand, code, self.mime)
-                if (self.messages):
-                    self.messages += os.linesep
-                self.messages += self.converter.getMessages()
+                self.addMessages(self.converter.getMessages())
                 self.isError = self.converter.isError
 
         except Exception as err:
             self.isError = True
-            self.addMessages("Could render scad code: "+str(err))  
+            self.addMessages("Could render OpenSCAD code: "+str(err))  
                
         return result
 
