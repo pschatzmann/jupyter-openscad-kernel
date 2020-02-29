@@ -354,13 +354,18 @@ class Parser:
 
     def renderMime(self):
         result = None
-        code = self.getSourceCode().strip()
-        if code:
-            result = self.converter.convert(self.scadCommand, code, self.mime)
-            if (self.messages):
-                self.messages += os.linesep
-            self.messages += self.converter.getMessages()
-            self.isError = self.converter.isError
+        try:
+            code = self.getSourceCode().strip()
+            if code:
+                result = self.converter.convert(self.scadCommand, code, self.mime)
+                if (self.messages):
+                    self.messages += os.linesep
+                self.messages += self.converter.getMessages()
+                self.isError = self.converter.isError
+         except Exception as err:
+            self.isError = True
+            self.addMessages("Could render scad code: "+str(err))  
+               
         return result
 
     def saveAs(self, fileName):
