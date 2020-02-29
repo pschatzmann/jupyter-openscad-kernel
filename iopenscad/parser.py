@@ -11,6 +11,8 @@ import re
 import logging
 import urllib
 import urllib.request
+from iopenscad.scanner import Scanner
+ 
 
 ##
 # Manages a library of include files. We support reference includes (which are
@@ -240,6 +242,7 @@ class Parser:
         self.scadCommand = ""
         self.isError = False
         self.displayRendered = False
+        self.scanner = Scanner()
 
 
     def getStatements(self):
@@ -258,6 +261,8 @@ class Parser:
         result += os.linesep
         ## temporary display code
         result += self.tempStatement.sourceCode
+        result = result.replace(u'\xa0', u' ')
+
         return result
     
     def lineCount(self):
@@ -287,17 +292,17 @@ class Parser:
         self.displayRendered = False
         self.clearMessages()
         self.tempStatement = Statement("-",[])
-        words = re.split('(\W)', scad)
+        words = self.scanner.scann(scad)
         end = 1
         while len(words)>0 and end>0:
             if not words[0].strip():
                 ## collect white space
-                end = self.findEndWhiteSpace(words)
+                end = self.scanner.findEndWhiteSpace(words)
                 statement = Statement("whitespace",words[0:end])
                 self.insertStatement(statement)
             elif "/*" == "".join(words[0:3]):
-                end = self.findEndString(words,"*/", 3)
-                end = self.findEndWithNewLine(words,end)
+                end = self.scanner.findEndString(words,"*/", 3)
+                end = self.scanner.findEndWithNewLine(words,end)
                 statement = Statement("comment", words[0:end])
                 self.insertStatement(statement)
             elif "%include" == "".join(words[0:2]):
@@ -306,12 +311,12 @@ class Parser:
                 end = self.processUse(words)
             elif words[0] in ["include", "use"]:
                 end = self.statements.index(";")
-                end = self.findEndWithNewLine(words,end)
+                end = self.scanner.findEndWithNewLine(words,end)
                 statement = Statement(words[0], words[0:end])
                 self.insertStatement(statement)
             elif words[0] == "module":
-                end = self.findEnd2(words,"{","}")
-                end = self.findEndWithNewLine(words,end)
+                end = self.scanner.findEnd2(words,"{","}")
+                end = self.scanner.findEndWithNewLine(words,end)
                 statement = Statement("module",words[0:end])
                 self.insertStatement(statement)
             elif "%clear" == "".join(words[0:2]):
@@ -319,12 +324,12 @@ class Parser:
                 self.close()
                 self.addMessages( "SCAD code buffer has been cleared")
             elif "%displayCode" == "".join(words[0:2]):
-                end = self.findEnd1(words,os.linesep)
+                end = self.scanner.findEnd1(words,os.linesep)
                 tmp = "".join(words[2:end])
                 self.addMessages( self.getSourceCode()+tmp)
             elif "%display" == "".join(words[0:2]):
                 self.displayRendered = True
-                end = self.findEnd1(words,os.linesep)
+                end = self.scanner.findEnd1(words,os.linesep)
                 self.tempStatement = Statement(None,words[2:end])
             elif "%%display" == "".join(words[0:4]):
                 self.displayRendered = True
@@ -333,13 +338,13 @@ class Parser:
             elif "%saveAs" == "".join(words[0:2]):
                 end = self.processSaveAs(words)
             elif "%mime" == "".join(words[0:2]):
-                end = self.findEnd1(words,os.linesep)
+                end = self.scanner.findEnd1(words,os.linesep)
                 mime = "".join(words[2:end]).strip()
                 if mime:
                     self.mime = mime
                 self.addMessages( "The display mime type is '"+self.mime+"'")
             elif "%command" == "".join(words[0:2]):
-                end = self.findEnd1(words,os.linesep)
+                end = self.scanner.findEnd1(words,os.linesep)
                 command =  "".join(words[2:end]).strip()
                 if command:
                     self.setScadCommand(command)
@@ -358,7 +363,6 @@ class Parser:
         result = None
         try:
             code = self.getSourceCode().strip()
-            code = code.replace(u'\xa0', u' ')
 
             if code:
                 result = self.converter.convert(self.scadCommand, code, self.mime)
@@ -376,75 +380,6 @@ class Parser:
     def saveAs(self, fileName):
         code = self.getSourceCode().strip()
         self.converter.saveAs(self.scadCommand, code, fileName)
-
-    # for a start tag we try to find the matching end tag: e.g for { }
-    def findEnd2(self, words, start, end):
-        index = 0
-        wordPos = 0
-        started = False
-        while wordPos<len(words):
-            word = words[wordPos]
-            if word == start:
-                index +=1
-                started = True
-                           
-            if word == end:
-                index -=1                
-            if started and index==0:
-                return wordPos+1            
-            wordPos +=1
-        return wordPos
-    
-    # find specified end charactror
-    def findEnd1(self, words, end):
-        wordPos = 0
-        while wordPos<len(words):
-            word = words[wordPos]
-            if word==end:
-                return wordPos+1
-            wordPos+=1
-            
-        return len(words)
-
-    # find the indicated end string by looking at the next num entries 
-    def findEndString(self, words, end, num):
-        wordPos = 0
-        while wordPos<len(words):
-            word = "".join(words[wordPos:wordPos+num])
-            if word==end:
-                return wordPos+num
-            wordPos+=1
-        return len(words)
-
-
-    # find the next white space 
-    def findEndWhiteSpace(self, words):
-        wordPos = 0
-        word = words[wordPos]
-        while not word.strip() and wordPos<len(words)-1:
-            wordPos+=1
-            word = words[wordPos]            
-        return wordPos
-    
-    # if the statement ends with a new line we add it to the statement
-    def findEndWithNewLine(self, words, end):
-        wordPos = end
-        hasLF = False
-        while wordPos<len(words):
-            word = words[wordPos]
-            if word==os.linesep:
-                hasLF = True
-                wordPos+=1              
-            elif word=="":
-                wordPos+=1              
-            elif words[wordPos]:
-                if hasLF: 
-                    return wordPos-1 
-                else: 
-                    return end
-            else:
-                wordPos+=1              
-        return len(words)
 
     def insertStatement(self, newStatement):
         if not newStatement.statementType in ["-","%","%%"]:
@@ -500,7 +435,7 @@ class Parser:
         return includeString
 
     def processInclude(self, words):
-        end = self.findEnd1(words,os.linesep)
+        end = self.scanner.findEnd1(words,os.linesep)
         try:
             scadCode = self.getIncludeString(words, end)
             useParser = Parser()
@@ -516,7 +451,7 @@ class Parser:
         return end
 
     def processUse(self, words):
-        end = self.findEnd1(words,os.linesep)
+        end = self.scanner.findEnd1(words,os.linesep)
         try:
             scadCode = self.getIncludeString(words, end)
             useParser = Parser()
@@ -533,7 +468,7 @@ class Parser:
         return end
 
     def processSaveAs(self, words):
-        end = self.findEnd1(words,os.linesep)
+        end = self.scanner.findEnd1(words,os.linesep)
         try:
             fileName = "".join(words[2:end]).strip()
             self.saveAs(fileName)
@@ -544,11 +479,11 @@ class Parser:
 
     def processDefault(self, words):
         if words[0:1]=="%":
-            end = self.findEnd1(words,os.linesep)
+            end = self.scanner.findEnd1(words,os.linesep)
             self.addMessages("Unsupported Command: "+"".join(words[0:end]))  
         else:
-            end = self.findEnd1(words,";")
-            end = self.findEndWithNewLine(words,end)
+            end = self.scanner.findEnd1(words,";")
+            end = self.scanner.findEndWithNewLine(words,end)
 
             newStatementWords = words[0:end]
             cmd = "".join(newStatementWords)

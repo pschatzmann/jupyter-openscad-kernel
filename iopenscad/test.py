@@ -5,6 +5,7 @@
 import unittest
 import os, re
 from iopenscad.parser import Parser
+from iopenscad.scanner import Scanner
 from iopenscad.kernel import IOpenSCAD
 
 class MyTest(unittest.TestCase):
@@ -150,12 +151,11 @@ class MyTest(unittest.TestCase):
         self.assertEqual(len(result), 1)
 
     def testEndChar(self):
-        parser = Parser()
+        s = Scanner()
         parseExpression = '(\W)'
-        self.assertEqual(parser.findEndWithNewLine(re.split(parseExpression,"a"),1), 1)
-        self.assertEqual(parser.findEndWithNewLine(re.split(parseExpression,"a"+os.linesep+"b"),1), 1)
-        self.assertEqual(parser.findEndWithNewLine(re.split(parseExpression,"a"+os.linesep+os.linesep+"b"),1), 3)
-
+        self.assertEqual(s.findEndWithNewLine(re.split(parseExpression,"a"),1), 1)
+        self.assertEqual(s.findEndWithNewLine(re.split(parseExpression,"a"+os.linesep+"b"),1), 1)
+        self.assertEqual(s.findEndWithNewLine(re.split(parseExpression,"a"+os.linesep+os.linesep+"b"),1), 3)
 
 
 if __name__ == '__main__': 
