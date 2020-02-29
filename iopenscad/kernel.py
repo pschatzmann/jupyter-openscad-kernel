@@ -64,7 +64,7 @@ class IOpenSCAD(Kernel):
                     if self.parser.getSourceCode().strip():
                         self.displayError(os.linesep+self.parser.getSourceCode())
             else:
-                self.displayMessagesEx(self.parser)
+                self.displayMessages(self.parser)
 
         # We return the exection results.
         return {'status': 'ok',
@@ -124,7 +124,7 @@ class IOpenSCAD(Kernel):
         if self.parser.isError:
             self.displayError(parser.getMessages())
         else:
-            self.displayInfo(parser.getMessages())
+            self.displayInfo(parser.getMessagesExt())
 
     
     def displayImage(self, resultObj, mime):
