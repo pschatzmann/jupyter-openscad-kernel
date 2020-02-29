@@ -11,7 +11,7 @@ class IOpenSCAD(Kernel):
     implementation = 'ipopenscad'
     implementation_version = '1.0'
     language = 'openscad'  # will be used for syntax highlighting
-    language_version = '3.6'
+    language_version = '2019'
     language_info = {'name': 'OpenSCAD',
                      'mimetype': 'application/x-openscad',
                      'extension': '.scad'}

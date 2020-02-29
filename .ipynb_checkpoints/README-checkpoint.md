@@ -15,15 +15,20 @@ diplays the version. E.g. 2019.12.20
 
 ## Installation
 
+
 ```
+pip install git+https://github.com/pschatzmann/openscad-kernel.git
+
 pip install openscad-kernel
+python -m iopenscad.install
+
 ```
 ## Installation from source
 
 ```
 git clone https://github.com/pschatzmann/openscad-kernel.git
 cd openscad-kernel
-pip install .
+jupyter kernelspec install --user iopenscad
 ```
 
 ## Optional Steps
