@@ -25,3 +25,12 @@ python setup.py sdist bdist_wheel
 twine upload dist/*
 ```
 
+## Docker
+Build with 
+```
+docker-compose build
+```
+Start with
+```
+docker-compose up
+```
