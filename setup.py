@@ -25,7 +25,7 @@ class InstallKernel(install):
 # This call to setup() does all the work
 setup(
     name="openscad-kernel",
-    version="1.0.3",
+    version="1.0.1",
     description="Jupyter kernel for OpenSCAD",
     long_description=README,
     long_description_content_type="text/markdown",
