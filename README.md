@@ -53,6 +53,7 @@ jupyter workspace
 ## Versions
 - 1.0     Initial Version
 - 1.0.1   Additional syntax checking; Publish to pypi
+- 1.0.13  Error corrections for parser and installer, support for %use
 
 ## Further Information
 - A quick [Overview](https://www.pschatzmann.ch/home/2020/02/26/an-openscad-kernel-in-jupyter/)
