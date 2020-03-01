@@ -70,7 +70,7 @@ class Scanner:
                 wordPos+=1              
             elif words[wordPos]:
                 if hasLF: 
-                    return wordPos-1 
+                    return wordPos 
                 else: 
                     return end
             else:

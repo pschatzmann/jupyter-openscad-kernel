@@ -2,7 +2,7 @@
     "python.testing.unittestArgs": [
         "-v",
         "-s",
-        "./iopenscad",
+        "./tests",
         "-p",
         "test*.py"
     ],

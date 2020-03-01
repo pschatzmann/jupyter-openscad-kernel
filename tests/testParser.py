@@ -5,10 +5,9 @@
 import unittest
 import os, re
 from iopenscad.parser import Parser
-from iopenscad.scanner import Scanner
 from iopenscad.kernel import IOpenSCAD
 
-class MyTest(unittest.TestCase):
+class MyTestParser(unittest.TestCase):
     def strip(self, txt):
         return txt.replace(os.linesep,"").strip()
 
@@ -150,12 +149,39 @@ class MyTest(unittest.TestCase):
         result = parser.getStatementsOfType("comment")
         self.assertEqual(len(result), 1)
 
-    def testEndChar(self):
-        s = Scanner()
-        self.assertEqual(s.findEndWithNewLine(s.scann("a"),1), 1)
-        self.assertEqual(s.findEndWithNewLine(s.scann("a"+os.linesep+"b"),1), 1)
-        self.assertEqual(s.findEndWithNewLine(s.scann("a"+os.linesep+os.linesep+"b"),1), 3)
+    def testMultipleComment(self):
+        parser = Parser()
+        cmd = "// test"+os.linesep
+        parser.parse(cmd)
+        self.assertEqual(len(parser.getStatementsOfType("comment")), 1)
+        cmd = "// test"+os.linesep
+        parser.parse(cmd)
+        self.assertEqual(len(parser.getStatementsOfType("comment")), 1)
+        cmd = "// test"
+        parser.parse(cmd)
+        self.assertEqual(len(parser.getStatementsOfType("comment")), 1)
 
+    def testMultipleStatement(self):
+        parser = Parser()
+        cmd = "test();"+os.linesep
+        parser.parse(cmd)
+        self.assertEqual(len(parser.getStatementsOfType("-")), 1)
+        cmd = "test();"+os.linesep
+        parser.parse(cmd)
+        self.assertEqual(len(parser.getStatementsOfType("-")), 1)
+        cmd = "test();"
+        parser.parse(cmd)
+        self.assertEqual(len(parser.getStatementsOfType("-")), 1)
+
+    def testEquals(self):
+        p = Parser()
+        str = "a=1;"+os.linesep+"b=2;"+os.linesep
+        p.parse(str)
+        stmts = p.getStatements()
+        self.assertEqual(len(stmts), 2)
+        self.assertEqual(stmts[0].sourceCode, "a=1;"+os.linesep)
+        self.assertEqual(stmts[1].sourceCode, "b=2;"+os.linesep)
+        
 
 if __name__ == '__main__': 
     unittest.main() 

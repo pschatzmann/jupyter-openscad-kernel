@@ -12,7 +12,7 @@ WORKDIR /opt
 RUN git clone https://github.com/pschatzmann/openscad-kernel
 WORKDIR /opt/openscad-kernel
 RUN pip3 install .
-RUN python -m iopenscad.install
+RUN python3 -m iopenscad.install
 RUN jupyter labextension install jupyterlab-openscad-syntax-highlighting
 #RUN jupyter labextension install jupyterlab-viewer-3d
 RUN mkdir -p /home/openscad

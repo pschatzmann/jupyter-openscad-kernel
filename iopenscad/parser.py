@@ -214,6 +214,10 @@ class Statement:
             self.name = self.extract(sourceCode,"module","(")
         elif statementTypePar == "function":
             self.name = self.extract(sourceCode,"function","(")
+        elif statementTypePar == "comment":
+            self.name = self.sourceCode.strip() 
+        elif statementTypePar == "-":
+            self.name = self.sourceCode.strip() 
             
     ## Logic to find the name with the help of a start and end tag
     def extract(self, wordList,fromStr,toStr):
@@ -231,7 +235,7 @@ class Statement:
 ##
 
 class Parser:
-    lsCommands = ["%clear", "%display", "%displayCode","%%display", "%mime", "%command", "%lsmagic", "%include", "%use", "%saveAs"]
+    lsCommands = ["%clear", "%display", "%displayCode","%%display","%%displayCode", "%mime", "%command", "%lsmagic", "%include", "%use", "%saveAs"]
         
     def __init__(self):
         self.statements = []
@@ -262,7 +266,6 @@ class Parser:
         ## temporary display code
         result += self.tempStatement.sourceCode
         result = result.replace(u'\xa0', u' ')
-
         return result
     
     def lineCount(self):
@@ -280,7 +283,7 @@ class Parser:
     def getMessagesExt(self):
         result = self.messages
         # if there is nothing to display we give at least some info
-        if not result.strip():
+        if not result.strip() and not self.displayRendered:
             result = "Number of lines of OpenSCAD code: "+str(self.lineCount())+os.linesep
         return result
 
@@ -298,11 +301,16 @@ class Parser:
             if not words[0].strip():
                 ## collect white space
                 end = self.scanner.findEndWhiteSpace(words)
-                statement = Statement("whitespace",words[0:end])
-                self.insertStatement(statement)
+                if "".join(words[0:end])!="":
+                    statement = Statement("whitespace",words[0:end])
+                    self.insertStatement(statement)
             elif "/*" == "".join(words[0:3]):
                 end = self.scanner.findEndString(words,"*/", 3)
                 end = self.scanner.findEndWithNewLine(words,end)
+                statement = Statement("comment", words[0:end])
+                self.insertStatement(statement)
+            elif "//" == "".join(words[0:3]):
+                end = self.scanner.findEnd1(words,os.linesep)
                 statement = Statement("comment", words[0:end])
                 self.insertStatement(statement)
             elif "%include" == "".join(words[0:2]):
@@ -323,10 +331,15 @@ class Parser:
                 end = 2                
                 self.close()
                 self.addMessages( "SCAD code buffer has been cleared")
+            elif "%%displayCode" == "".join(words[0:4]):
+                self.displayRendered = True
+                end = len(words)
+                self.tempStatement = Statement(None,words[4:end])
+                self.addMessages( self.getSourceCode())
             elif "%displayCode" == "".join(words[0:2]):
                 end = self.scanner.findEnd1(words,os.linesep)
-                tmp = "".join(words[2:end])
-                self.addMessages( self.getSourceCode()+tmp)
+                tmpCode = "".join(words[2:end])
+                self.addMessages( self.getSourceCode()+tmpCode)
             elif "%display" == "".join(words[0:2]):
                 self.displayRendered = True
                 end = self.scanner.findEnd1(words,os.linesep)
@@ -380,12 +393,12 @@ class Parser:
         self.converter.saveAs(self.scadCommand, code, fileName)
 
     def insertStatement(self, newStatement):
-        if not newStatement.statementType in ["-","%","%%"]:
+        if  newStatement.statementType in ["module","=","comment","-"]:
             for i in range(len(self.statements)):
                 current = self.statements[i]
                 if current.name == newStatement.name and current.statementType == newStatement.statementType:
                     self.statements[i] = newStatement
-                    return
+                    return            
         self.statements.append(newStatement)
 
     def getModuleNames(self):
@@ -440,7 +453,7 @@ class Parser:
             useParser.parse(scadCode)
             count = 0
             for statement in useParser.statements:
-                self.statements.append(statement)
+                self.insertStatement(statement)
                 count += 1
             self.addMessages("Included number of statements: "+str(count)) 
         except Exception as err:
@@ -457,7 +470,7 @@ class Parser:
             count = 0
             for statement in useParser.statements:
                 if (statement.statementType in ["include","use","module","function","=","whitespace","comment"]):
-                    self.statements.append(statement)
+                    self.insertStatement(statement)
                     count += 1
             self.addMessages("Included number of statements: "+str(count)) 
         except Exception as err:
