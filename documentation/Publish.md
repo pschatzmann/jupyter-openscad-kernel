@@ -17,7 +17,7 @@ git push origin master --tags
 
 ## Build wheel
 ```
-python setup.py sdist bdist_wheel
+python3 setup.py sdist bdist_wheel
 ```
 
 ## Publish

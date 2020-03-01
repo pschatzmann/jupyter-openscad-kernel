@@ -17,13 +17,17 @@ diplays the version. E.g. 2019.12.20
 
 ```
 pip install jupyter-openscad-kernel
+python -m iopenscad.install
 ```
+
 ## Installation from source
 
 ```
 git clone https://github.com/pschatzmann/jupyter-openscad-kernel.git
 cd openscad-kernel
 pip install .
+python -m iopenscad.install
+
 ```
 
 ## Optional Steps
