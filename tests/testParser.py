@@ -124,7 +124,7 @@ class MyTestParser(unittest.TestCase):
         cmd = "%include https://raw.githubusercontent.com/pschatzmann/openscad-models/master/Pig.scad" 
         parser = Parser()
         parser.parse(cmd)
-        self.assertEqual(len(self.strip(parser.getSourceCode())), 2185)
+        self.assertEqual(len(self.strip(parser.getSourceCode())), 2192)
         self.assertTrue("Included" in parser.getMessages().strip())
 
     def testUse(self):

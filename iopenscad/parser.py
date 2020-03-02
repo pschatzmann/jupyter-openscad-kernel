@@ -206,7 +206,7 @@ class Setup:
         # check for openscad
         scadCommand = "openscad"
         if mc.convert(scadCommand,testSCAD,"image/png")==0:
-            return scadCommand
+            return self.openSCADLinux(scadCommand)
         
         # check for openjscad
         scadCommand = "openjscad"
@@ -223,7 +223,7 @@ class Setup:
             try:
                 os.environ['DISPAY']
                 return scadCommand
-            except Exception:
+            except KeyError:
                 return "xvfb-run --auto-servernum --server-num=99 openscad"
         return scadCommand
 
