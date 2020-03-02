@@ -39,6 +39,10 @@ If you want to have syntax highlighting for OpenSCAD:
 ```
 jupyter labextension install jupyterlab-openscad-syntax-highlighting
 ```
+On linux, if you want to run openscad in a headless environment (e.g. Docker) you need to install xvfb
+```
+apt install -y xvfb
+```
 
 
 Now you can launch your kernel my calling
