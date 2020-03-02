@@ -194,6 +194,40 @@ class MimeConverter:
         self.tmpFiles = []
           
 
+class Setup:
+    def setup(self, scadCommand):
+        # if the scadCommand is defined there is nothing to do
+        if scadCommand:
+            return scadCommand
+        
+        mc = MimeConverter()
+        testSCAD = "cube([1,1,1]);"
+
+        # check for openscad
+        scadCommand = "openscad"
+        if mc.convert(scadCommand,testSCAD,"image/png")==0:
+            return scadCommand
+        
+        # check for openjscad
+        scadCommand = "openjscad"
+        if mc.convert(scadCommand, testSCAD,"image/png")==0:
+            return scadCommand
+
+        # Default command if nothing is supported
+        scadCommand = "openscad"
+        return scadCommand
+
+    def openSCADLinux(self, scadCommand):
+        from sys import platform
+        if platform == "linux" or platform == "linux2":
+            try:
+                os.environ['DISPAY']
+                return scadCommand
+            except Exception:
+                return "xvfb-run --auto-servernum --server-num=99 openscad"
+        return scadCommand
+
+
 ##
 # Stores a single SCAD "statememnt". For our purpose we just consider a subset 
 # which is relevant to prevent redundant code.
@@ -401,6 +435,7 @@ class Parser:
                     return            
         self.statements.append(newStatement)
 
+    ## Determines the currently defined module names
     def getModuleNames(self):
         result = []
         for s in self.statements:
@@ -410,25 +445,7 @@ class Parser:
  
     ## Determines the installed scad programs
     def setup(self):
-        # if the scadCommand is defined there is nothing to do
-        if self.scadCommand:
-            return self.scadCommand
-        
-        mc = MimeConverter()
-        testSCAD = "cube([1,1,1]);"
-
-        # check for openscad
-        self.scadCommand = "openscad"
-        if mc.convert(self.scadCommand,testSCAD,"image/png")==0:
-            return self.scadCommand
-        
-        # check for openjscad
-        self.scadCommand = "openjscad"
-        if mc.convert(self.scadCommand, testSCAD,"image/png")==0:
-            return self.scadCommand
-
-        # Default command if nothing is supported
-        self.scadCommand = "openscad"
+        self.scadCommand = Setup().setup(self.scadCommand)
         return self.scadCommand
     
     def setScadCommand(self, cmd):
