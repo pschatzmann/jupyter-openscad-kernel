@@ -205,12 +205,12 @@ class Setup:
 
         # check for openscad
         scadCommand = "openscad"
-        if mc.convert(scadCommand,testSCAD,"image/png")==0:
+        if mc.convert(scadCommand,testSCAD,"image/png")!=None:
             return self.openSCADLinux(scadCommand)
         
         # check for openjscad
         scadCommand = "openjscad"
-        if mc.convert(scadCommand, testSCAD,"image/png")==0:
+        if mc.convert(scadCommand, testSCAD,"image/png")!=None:
             return scadCommand
 
         # Default command if nothing is supported

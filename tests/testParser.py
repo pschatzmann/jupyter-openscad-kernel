@@ -5,6 +5,7 @@
 import unittest
 import os, re
 from iopenscad.parser import Parser
+from iopenscad.parser import Setup
 from iopenscad.kernel import IOpenSCAD
 
 class MyTestParser(unittest.TestCase):
@@ -181,6 +182,11 @@ class MyTestParser(unittest.TestCase):
         self.assertEqual(len(stmts), 2)
         self.assertEqual(stmts[0].sourceCode, "a=1;"+os.linesep)
         self.assertEqual(stmts[1].sourceCode, "b=2;"+os.linesep)
+
+    def testSetup(self):
+        s = Setup()
+        self.assertEqual(s.setup(""), "openscad")
+
         
 
 if __name__ == '__main__': 
