@@ -24,7 +24,7 @@ python -m iopenscad.install
 
 ```
 git clone https://github.com/pschatzmann/jupyter-openscad-kernel.git
-cd openscad-kernel
+cd jupyter-openscad-kernel
 pip install .
 python -m iopenscad.install
 
