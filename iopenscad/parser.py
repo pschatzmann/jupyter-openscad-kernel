@@ -177,7 +177,7 @@ class MimeConverter:
         result = list[1]
         if mime=="text/plain":
             result = "txt"
-        if mime=="applicatioin/openscad":
+        if mime=="application/openscad":
             result = "txt"
         return result
     
@@ -221,7 +221,7 @@ class Setup:
         from sys import platform
         if platform == "linux" or platform == "linux2":
             try:
-                os.environ['DISPAY']
+                os.environ['DISPLAY']
                 return scadCommand
             except KeyError:
                 return "xvfb-run --auto-servernum --server-num=99 openscad"
