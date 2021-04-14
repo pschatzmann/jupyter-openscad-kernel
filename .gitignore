@@ -49,3 +49,8 @@ coverage.xml
 # Sphinx documentation
 docs/_build/
 .ipynb_checkpoints	
+
+# Other temp directories
+bak/
+.vscode/
+.ipynb_checkpoints
