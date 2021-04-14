@@ -1,4 +1,4 @@
-FROM ubuntu
+FROM ubuntu:groovy
 LABEL maintainer="phil.schatzmann@gmail.com"
 USER root
 RUN apt-get update && apt-get install -y curl software-properties-common
@@ -14,7 +14,7 @@ WORKDIR /opt/openscad-kernel
 RUN pip3 install .
 RUN python3 -m iopenscad.install
 RUN jupyter labextension install jupyterlab-openscad-syntax-highlighting
-#RUN jupyter labextension install jupyterlab-viewer-3d
+RUN jupyter labextension install jupyterlab-viewer-3d
 RUN mkdir -p /home/openscad
 WORKDIR /home/openscad
 RUN cp /opt/openscad-kernel/documentation/* /home/openscad/
