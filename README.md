@@ -58,7 +58,7 @@ jupyter workspace
 - 1.0     Initial Version
 - 1.0.1   Additional syntax checking; Publish to pypi
 - 1.0.13  Error corrections for parser and installer, support for %use
-- 1.0.14  Cleanup and corrections for spelling mistakes
+- 1.0.14  Cleanup and corrections for spelling mistakes, Upgrade node and setuptools release in Dockerfile 
 
 ## Further Information
 - A quick [Overview](https://www.pschatzmann.ch/home/2020/02/26/an-openscad-kernel-in-jupyter/)
