@@ -26,5 +26,5 @@ setup(
     ],
     packages=["iopenscad"],
     include_package_data=True,
-    install_requires=["jupyter","pathlib"],
+    install_requires=["jupyter"],
 )
